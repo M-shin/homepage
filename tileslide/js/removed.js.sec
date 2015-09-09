@@ -1,0 +1,160 @@
+/*
+function HelperFunctions(){
+    this.welcomeAndHowToPlayMessage = 
+        "Welcome to <strong>Tile Slide</strong>, the puzzle game that is <strong>easy to play</strong> but <strong>impossible to master.</strong><br><br>" +
+        "Use your <strong>arrow keys</strong> to shift all the tiles on the board in a certain direction. Try to line up <strong>three (or more) same colors in a row</strong> and watch them disappear!<br><br>" +
+        "As you keep matching tiles, you'll <strong>rack up points</strong> and the difficulty level will <strong>increase</strong>.<br><br>" +
+        "Check out the <strong>leaderboard</strong> to see what score you'll need to be <strong>top 10!</strong> There are <strong>various power-ups and gameplay mechanics</strong> that can only be learned through playing, so get started and <strong>Happy Matching!</strong><br><br>";
+        //"<strong>Note: </strong>this game is still very much in alpha/beta stages so <strong>all feedback</strong> is appreciated. And it also means the game is <strong>constantly improving!</strong>";
+    this.aboutMessage = 
+        '<strong>Created by:</strong><br>Michael Shin<br><br><strong>Beta Testing By:</strong><br>Davis Robertson<br>Ryan Wells<br><br><strong>Special Thanks To:</strong><br>Connor Hitt - Tile delete animation<br>Jake Courtney - Numerous ideas and suggestions<br>ɹǝʇsɐWlloɹʇ - Revealing serious security flaws<br><br><strong>Game inspired by:</strong><br><a href="http://gabrielecirulli.github.io/2048/" target="_blank">2048</a> by Gabriele Cirulli<br><a href="http://www.candycrushsaga.com/" target="_blank">Candy Crush Saga</a> by King';
+    this.maintenanceMessage = 
+        '<strong>Sorry!</strong> The game is currently down for maintenance.<br><br>It should be back up shortly, but if it isn\'t, you should be <strong>really</strong> excited becuase that means <strong>big improvements</strong> are being made!';
+    this.submitFeedbackMessage = 
+        'Use this form to <strong>report any bugs</strong> or to provide <strong>gameplay suggestions</strong>. Your name will be added to the <strong>"Special Thanks"</strong> list if an improvement suggestion is implemented in the actual game.';
+}
+
+HelperFunctions.prototype.setupInputManagement = function(inputManager){
+    inputManager.on("displayWelcomeMessage",this.displayWelcomeMessage.bind(this));
+    inputManager.on("displayLeaderboard",this.displayLeaderboard.bind(this));
+    inputManager.on("submitFeedback",this.submitFeedback.bind(this));
+    inputManager.on("displayCredits",this.displayCreditsMessage.bind(this));
+};
+
+HelperFunctions.prototype.displayWelcomeMessage = function() {
+    vex.dialog.buttons.YES.text = "Get Started!";
+    vex.dialog.alert(this.welcomeAndHowToPlayMessage);
+};
+
+HelperFunctions.prototype.displayCreditsMessage = function() {
+    vex.dialog.buttons.YES.text = "Close";
+    vex.dialog.alert(this.aboutMessage);
+};
+
+HelperFunctions.prototype.displayMaintenanceMessage = function() {
+    vex.dialog.buttons.YES.text = "Okay";
+    vex.dialog.alert(this.maintenanceMessage);
+};
+
+HelperFunctions.prototype.submitFeedback = function() {
+    vex.dialog.buttons.YES.text="Submit";
+    vex.dialog.open({
+      message: this.submitFeedbackMessage,
+      input: '<style>\n' + 
+      '.vex-custom-field-wrapper {\n'+
+      'width: 100%\n'+
+      '}\n'+
+      '.vex-custom-field-wrapper {\n'+
+      'display: inline-block;\n'+
+      'margin-bottom: .2em;\n'+
+      '}\n'+
+      '</style>\n'+
+      '<div class="vex-custom-field-wrapper">\n'+
+      '<div class="vex-custom-input-wrapper">\n'+
+      '<input name="name" type="text" placeholder="Name"/>\n'+
+      '</div>\n'+
+      '</div>\n'+
+      '<div class="vex-custom-field-wrapper">\n'+
+      '<div class="vex-custom-input-wrapper">\n'+
+      '<textarea name="message" rows="5" cols="40" placeholder="Message"/>\n'+
+      '</div>\n'+
+      '</div>',
+      callback: function(data) {
+        if(data){
+            $.ajax({
+               type: "POST",
+               url: "./php/feedback.php",
+               data: {message: data.message, name: data.name}
+            }).done(function(response){
+                vex.dialog.buttons.YES.text="Ok"
+                vex.dialog.alert(response);
+            });
+    
+        //return $('.demo-result-custom-vex-dialog').show().html("<h4>Result</h4>\n<p>\n    Date: <b>" + data.date + "</b><br/>\n    Color: <input type=\"color\" value=\"" + data.color + "\" readonly />\n</p>");
+        }
+      }
+    });
+    
+};
+
+HelperFunctions.prototype.displayLeaderboard = function() {
+    var self = this;
+    $.ajax({
+       type: "POST",
+       url: "/php/leaderboard.php",
+       data: {board: "yes"}
+    }).done(function(response){
+        vex.dialog.buttons.YES.text = "Close";
+        var splitbyline = response.split("\n");
+        var cssFormattedResponse = "<pre>";
+        for(var i = 0; i < 10;i++){
+            cssFormattedResponse += self.formatLeaderboardLine(splitbyline[i]) + "<br>";
+        }
+        cssFormattedResponse += "</pre>";
+        vex.dialog.alert(cssFormattedResponse);
+    }); 
+};
+
+HelperFunctions.prototype.formatLeaderboardLine = function(line){
+    if(!line){
+        return;
+    }
+    var data = line.split("%");
+    var rank = data[0];
+    var name = data[1];
+    var score = data[2];
+    rank += ".";
+    while(rank.length <= 3){
+        rank += " ";
+    }
+    while(name.length <= 15){
+        name += " ";
+    }
+    while(score.length <=5){
+        score = " " + score;
+    }
+    return rank + " " + name + " " + score;
+};
+HelperFunctions.prototype.addToLeaderboard = function(s, gameMode, alreadyAdded, error, hfself) {
+    if(alreadyAdded === true){
+        vex.dialog.alert("<strong>You can't</strong> submit the score for the <strong>same</strong> game twice!");
+    }else{
+        vex.dialog.buttons.YES.text = "Submit";
+        vex.dialog.prompt({
+            message: "Name to be added to leaderboard?<br><strong>Note</strong>, maximum name length is <strong>13 characters</strong> and alphanumeric names only please!" + (error ? "<br><span class='error-message'>Your name either does not comply with the length requirement or it contains an illegal character. Please try again.</span>" : ""),
+            placeholder: "Name",
+            callback: function(n) {
+                if(n){
+                    if(!(n.length > 0 && n.length <=13) || n.search("^[A-Za-z0-9 ]+$") == -1){
+                        hfself.addToLeaderboard(s, gameMode, false, true, hfself);
+                    }else{
+                    var secnum = {sec:null};
+                    $.ajax({
+                        type: 'GET',
+                        url: './php/leaderboard.php',
+                        data: {secindex: 1}
+                    }).done(function(response){
+                        secnum.sec = response;
+                        $.ajax({
+                        type: "POST",
+                        url: "./php/leaderboard.php",
+                        data: {namea: n, scorec: s, mode: gameMode, key: ([2,3,5,7,9,11,13,15,17,19,21,23,25,1234,4321,123,333,2424][secnum.sec%[2,3,5,7,9,11,13,15,17,19,21,23,25,1234,4321,123,333,2424].length]) + ""}
+                        }).done(function(response){
+                            vex.dialog.buttons.YES.text = "Close";
+                            console.log(response);
+                            if(response == "s"){
+                                hfself.displayLeaderboard(gameMode, n, s);
+                            } 
+                        });
+                    });
+                    
+                    }
+                }else{
+                    hfself.addToLeaderboard(s, gameMode, false, true, hfself);
+                }
+            }
+        });
+    }
+};
+
+*/

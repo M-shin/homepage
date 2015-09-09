@@ -1,0 +1,9 @@
+// From game_manager.js
+// Save all tile positions and remove merger info
+GameManager.prototype.prepareTiles = function () {
+  this.grid.eachCell(function (x, y, tile) {
+    if (tile) {
+      tile.savePosition();
+    }
+  });
+};
