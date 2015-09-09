@@ -1,0 +1,802 @@
+@import "helpers";
+@import "fonts/clear-sans.css";
+
+$field-width: 570px;
+//$field-width: 50vw;
+$grid-spacing: 15px;
+//$grid-spacing: 10vw;
+$grid-row-cells: 6;
+$tile-size: ($field-width - $grid-spacing * ($grid-row-cells + 1)) / $grid-row-cells;
+$tile-border-radius: 3px;
+
+
+$text-color: #776E65;
+$bright-text-color: #f9f6f2;
+
+$tile-color: #eee4da;
+
+$game-container-background: #bbada0;
+
+$transition-speed: 100ms;
+
+$container-opacity: 0.8;
+$r: #007dff;
+$y: #25d500;
+$g: #ff7400;
+$b: #bf3030;
+$o: #ffdf00;
+$p: #8805a8;
+$w: #ffffff;
+$bl: #000000;
+
+html {
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+html, body {
+  margin: 0;
+  padding: 0;
+
+  background: #faf8ef;
+  background-image: url('/ss/stardust.png');
+  color: $text-color;
+  font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+  font-size: 18px;
+  width: 100%;
+}
+
+body {
+  margin: 10px 0;
+}
+
+.heading {
+    position: relative;
+}
+
+.heading:after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+h1.title {
+  font-size: 80px;
+  font-weight: bold;
+  margin: 0;
+  display: block;
+  float: center;
+  text-align: center;
+}
+
+.button {
+  height: 50px;
+  width: 100%;
+  padding: 5px;
+  display: inline-block;
+  background-color: #bbada0;
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Clear Sans";
+  color:#ffffff;
+  text-transform: uppercase;
+  border-radius: 3px;
+  border: none;
+  margin-bottom: 3px;
+}
+
+
+.right {
+    float: right;
+}
+
+@include keyframes(move-up) {
+  0% {
+    top: 25px;
+    opacity: 1;
+  }
+  25% {
+      top: 5px;
+      opacity: .75;
+  }
+  50% {
+      top: -15px;
+      opacity: .5;
+  }
+  75% {
+      top: -35px;
+      opacity: .25;
+  }
+  100% {
+    top: -55px;
+    opacity: 0;
+  }
+}
+
+$column-width: 16vw;
+.score-info-area {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: $column-width;
+    height: 100%;
+    div:first-child {
+        margin: 0px;
+    }
+}
+
+.game-explanation {
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: $column-width;
+    height: 100%;
+}
+
+
+$container-height: 20% * .96;
+$font-height: 9vh;
+$small-font: 2.8vh;
+
+#misc-div,
+.level-container, 
+.next-level-container, 
+.score-container, 
+.best-score-container, 
+.display-welcome-message-container,
+.leaderboard-container,
+.submit-feedback-container,
+.credits-container,
+.moves-remaining-container,
+.time-remaining-container,
+.start-over-button-container
+{
+  $height: $container-height;
+  //background: rgba(238, 228, 218, 0.35) !important;
+  position: relative;
+  display: block;
+  //padding: 15px 25px;
+  font-size: $font-height;
+  height: $height;
+  width: 100%;
+  line-height: $font-height * 10 / 4; //+ 25px;
+  font-weight: bold;
+  border-radius: 3px;
+  color: white;
+  text-shadow:
+    -1px -1px 0 black,
+    1px -1px 0 black,
+    -1px 1px 0 black,
+    1px 1px 0 black;
+  margin-top: 5px;
+  text-align: center;
+
+  &:after {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 2vh;
+    left: 0;
+    text-transform: uppercase;
+    font-size: $small-font;
+    line-height: $small-font;
+    text-align: center;
+    color: white;
+    letter-spacing: 1px;
+    text-shadow:
+    -1px -1px 0 black,
+    1px -1px 0 black,
+    -1px 1px 0 black,
+    1px 1px 0 black;
+  }
+  .slide-score-text-up {
+    position: absolute;
+    right: 30px;
+    color: black;
+    font-size: $font-height * 3 / 8;
+    line-height: $font-height * 3 / 8;
+    font-weight: bold;
+    z-index: 100;
+    @include animation(move-up 1s ease-in);
+    @include animation-fill-mode(both); 
+  }
+}
+
+.display-welcome-message-container,
+.leaderboard-container,
+.submit-feedback-container,
+.credits-container,
+.start-over-button-container{
+    &:after {
+        font-size: $font-height * .39;
+        line-height: $font-height * .4;
+        top: $container-height * 2.1;
+        text-align: center;
+        width: 100%;
+        text-shadow:
+        -1px -1px 0 black,
+        1px -1px 0 black,
+        -1px 1px 0 black,
+        1px 1px 0 black;
+        color: white;
+    }
+}
+
+.submit-feedback-container.two-line-text:after, .start-over-button-container.two-line-text:after {
+    top: $container-height * 1.5;
+}
+
+.display-welcome-message-container{
+    margin-top: 0px;
+    background: rgba($p, $container-opacity);
+    &:after {
+        content: "Instructions";
+    }
+}
+.leaderboard-container{
+    background: rgba($r, $container-opacity);
+    &:after {
+        content: "Leaderboard";
+    }
+}
+
+.submit-feedback-container{
+    background: rgba($y, $container-opacity);
+    &:after {
+        content: "Submit Feedback";
+    }
+}
+
+.credits-container{
+    background: rgba($b, $container-opacity);
+    &:after {
+        content: "Credits";
+    }
+}
+
+.level-container {
+  background: rgba($r, $container-opacity);
+    &:after {
+        content: "Current Level";
+    }
+}
+
+.next-level-container {
+  background: rgba($b, $container-opacity);
+  &:after {
+      content: "Pts To Next Level";
+  }
+}
+
+.score-container {
+    background: rgba($y, $container-opacity);
+    &:after {
+        content: "Current Score";
+    }
+}
+
+#misc-div {
+    background: rgba($o, $container-opacity);
+    line-height: $font-height *2.5;
+}
+
+.best-score-container {
+    background: rgba($g, $container-opacity);
+    &:after {
+        content: "Personal High";
+    }
+}
+
+.start-over-button-container {
+    background: rgba($g, $container-opacity);
+    &:after {
+        content: "Start A New Game";
+    }
+}
+
+.moves-remaining-container {
+    background: rgba($o, $container-opacity);
+    &:after {
+        content: "Moves Remaining";
+    }
+}
+
+.time-remaining-container {
+    background: rgba($o, $container-opacity);
+    &:after {
+        content: "Time Remaining";
+    }
+}
+
+.leaderboard-selection-btn {
+    text-align: center;
+    width: 100%;
+    height: 35px;
+    margin-bottom: 2px !important;
+    
+    @include transition(background, 1s, ease);
+    
+    &:hover {
+        background: #3288e6;
+    }
+    
+}
+
+.last-leaderboard-selection-btn {
+    margin-bottom: 10px !important;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 10px;
+  line-height: 1.65;
+}
+
+a {
+  color: $text-color;
+  font-weight: bold;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+strong {
+  &.important {
+    text-transform: uppercase;
+  }
+}
+
+hr {
+  border: none;
+  border-bottom: 1px solid lighten($text-color, 40%);
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.container {
+  width: $field-width;
+  margin: 0 auto;
+}
+
+@include keyframes(fade-in) {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+// Styles for buttons
+@mixin button {
+  display: inline-block;
+  background: $bl;
+  border-radius: 3px;
+  padding: 0 20px;
+  text-decoration: none;
+  color: $bright-text-color;
+  height: 40px;
+  line-height: 42px;
+}
+
+// Game field mixin used to render CSS at different width
+@mixin game-field {
+  .game-container {
+    margin-top: 0px;
+    position: relative;
+    padding: $grid-spacing;
+
+    cursor: default;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+
+   // background: $game-container-background;
+  // border: 3px solid rgba(#ffffff, .5);
+    border-radius: $tile-border-radius * 2;
+    width: $field-width;
+    height: $field-width;
+    -ms-touch-action: none;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+
+    .game-message {
+      display: none;
+
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background: rgba($tile-color, .5);
+      color: $bl;
+      z-index: 100;
+
+      text-align: center;
+
+      p {
+        font-size: 60px;
+        font-weight: bold;
+        height: 60px;
+        line-height: 60px;
+        margin-top: 222px;
+        color: $bl;
+        text-shadow: 0 0 10px #ffff66;
+        // height: $field-width;
+        // line-height: $field-width;
+      }
+
+      .lower {
+        display: block;
+        margin-top: 59px;
+        width: 100%;
+        text-align: center;
+      }
+
+      a {
+        @include button;
+        display: block;
+        margin: auto auto 5px auto;
+        width: 18vw;
+        opacity: 0.75;
+      }
+
+      @include animation(fade-in 800ms ease $transition-speed * 12);
+      @include animation-fill-mode(both);
+      &.game-over {
+          display: block;
+      }
+    }
+  }
+
+  .grid-container {
+    position: absolute;
+    z-index: 1;
+  }
+
+  .grid-row {
+    margin-bottom: $grid-spacing;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &:after {
+      content: "";
+      display: block;
+      clear: both;
+    }
+  }
+
+  .grid-cell {
+    width: $tile-size;
+    height: $tile-size;
+    margin-right: $grid-spacing;
+    float: left;
+
+    border-radius: $tile-border-radius;
+
+    background: rgba($tile-color, .35);
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  .tile-container {
+    position: absolute;
+    z-index: 2;
+  }
+
+  .tile {
+    &, .tile-inner {
+      width: ceil($tile-size);
+      height: ceil($tile-size);
+      line-height: $tile-size  + 10px;
+      //line-height: $tile-size  * 1.1;
+    }
+
+    // Build position classes
+    @for $x from 1 through $grid-row-cells {
+      @for $y from 1 through $grid-row-cells {
+        &.tile-position-#{$x}-#{$y} {
+          $xPos: floor(($tile-size + $grid-spacing) * ($x - 1));
+          $yPos: floor(($tile-size + $grid-spacing) * ($y - 1));
+          @include transform(translate($xPos, $yPos));
+        }
+      }
+    }
+  }
+}
+
+
+
+$arrow-color: $bl;
+
+$arrow-width-radius: 15px;
+//$arrow-width-radius: $tile-size * .25;
+
+$arrow-height-radius: 21px;
+//$arrow-height-radius: $tile-size * .28;
+
+$circle-radius: 13px;
+//$circle-radius: $tile-size * .3;
+
+.circle-middle {
+    position: absolute;
+    top: $tile-size/2 - $circle-radius;
+    left: $tile-size/2 - $circle-radius;
+    background: $arrow-color;
+    width: $circle-radius * 2;
+    height: $circle-radius * 2;
+    border-radius: 50%;
+}
+
+$line-thickness: 10px;
+//$line-thickness: $tile-size * .22;
+
+.vertical-line
+{
+ height: $tile-size * .5 + 5px;
+ //height: $tile-size * .52;
+ border-left: $line-thickness solid $bl;
+ position: absolute;
+ top: $tile-size * .2;
+ left: ($tile-size / 2) - ($line-thickness / 2);
+}
+
+.horizontal-line
+{
+ width: $tile-size * .7;
+ border-top: $line-thickness solid $bl;
+ position: absolute;
+ top: ($tile-size / 2) - ($line-thickness / 2);
+ left: $tile-size * .2;
+}
+
+.arrow-up {
+    position: absolute;
+    top: 2px;
+    left: $tile-size / 2 - $arrow-width-radius;
+	width: 0; 
+	height: 0; 
+	border-left: $arrow-width-radius solid transparent;
+	border-right: $arrow-width-radius solid transparent;
+	
+	border-bottom: $arrow-height-radius solid $arrow-color;
+	
+}
+
+.arrow-down {
+    position: absolute;
+	bottom: 2px;
+	left: $tile-size / 2 - $arrow-width-radius;
+	width: 0; 
+	height: 0; 
+	border-left: $arrow-width-radius solid transparent;
+	border-right: $arrow-width-radius solid transparent;
+	
+	border-top: $arrow-height-radius solid $arrow-color;
+}
+
+.arrow-right {
+    position: absolute;
+    top: $tile-size / 2 - $arrow-width-radius;
+    right: 2px;
+	width: 0; 
+	height: 0; 
+	border-top: $arrow-width-radius solid transparent;
+	border-bottom: $arrow-width-radius solid transparent;
+	
+	border-left: $arrow-height-radius solid $arrow-color;
+}
+
+.arrow-left {
+    position: absolute;
+    top: $tile-size / 2 - $arrow-width-radius;
+    left: 2px;
+    
+	width: 0; 
+	height: 0; 
+	border-top: $arrow-width-radius solid transparent;
+	border-bottom: $arrow-width-radius solid transparent; 
+	
+	border-right: $arrow-height-radius solid $arrow-color; 
+}
+
+// End of game-field mixin
+@include game-field;
+
+.tile {
+  position: absolute; // Makes transforms relative to the top-left corner
+
+  .tile-inner {
+      
+    border-radius: $tile-border-radius;
+
+    background: $tile-color;
+    text-align: center;
+    font-weight: bold;
+    z-index: 10;
+
+    font-size: 55px;
+  }
+
+  // Movement transition
+  @include transition($transition-speed ease-in-out);
+  -webkit-transition-property: -webkit-transform;
+  -moz-transition-property: -moz-transform;
+  transition-property: transform;
+  
+  
+  $start: 1;
+  $colorend: 6;
+  $typeend: 6;
+
+  $colors:  $r, // red
+            $y, // yellow
+            $g, // green
+            $b, // blue
+            $o, // orange
+            $p; // purple
+            
+    // Build tile colors
+    @while $start <= $colorend {
+        
+        &.tile-#{$start} .tile-inner {
+            $nth-color: nth($colors, $start);
+            
+            // Set background
+            background: $nth-color;
+        }
+
+        $start: $start + 1;
+    }
+  
+}
+
+@include keyframes(semi-disappear) {
+    0% {
+        opacity: 1;
+    }
+    25% {
+        opacity: 0.5;
+    }
+    
+    50% {
+        opacity: 0;
+    }
+    75% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.flash {
+    @include animation(semi-disappear 0.5s ease)
+}
+
+@include keyframes(disappear) {
+    0% {
+        opacity: 1;
+        @include transform(scale(1));
+    }
+    50% {
+        opacity: .5;
+        @include transform(scale(.5)); 
+    }
+    100% {
+        opacity: 0;
+        @include transform(scale(0));
+    }
+}
+
+@include keyframes(glow-disappear) {
+    0% {
+        box-shadow: 0px 0px 5px 6px #ffff66;
+    }
+    
+    100% {
+        box-shadow: none;
+    }
+}
+$tile-remove-speed: 1s;
+.tile-delete .tile-inner {
+    @include animation(disappear 1s ease 100ms);
+    @include animation(glow-disappear 1s ease 100ms);
+   // box-shadow: 0px 0px 5px 6px #ffff66;
+}
+
+@include keyframes(appear) {
+  0% {
+    opacity: 0;
+    @include transform(scale(0));
+  }
+
+  100% {
+    opacity: 1;
+    @include transform(scale(1));
+  }
+}
+
+.tile-new .tile-inner {
+  @include animation(appear 200ms ease $transition-speed);
+  @include animation-fill-mode(backwards);
+}
+
+.game-intro {
+  margin-bottom: 0;
+}
+
+/*
+Backgrounds are here because of possible future move from static css backgrounds to a normalized background via classes. Not Implemented yet
+*/
+
+.red-background {
+    background: $r;
+}
+
+.yellow-background {
+    background: $y;
+}
+
+.blue-background {
+    background: $y;
+}
+
+.orange-background {
+    background: $y;
+}
+
+.purle-background {
+    background: $y;
+}
+
+.error-message {
+    color: red;
+}
+
+.red-letter {
+    color: $r;
+}
+
+.yellow-letter {
+    color: $y;
+}
+
+.blue-letter {
+    color: $b;
+}
+
+.orange-letter {
+    color: $o;
+}
+
+.purple-letter {
+    color: $p;
+}
+
+.tilde {
+    color: $w;
+}
+
+.white-letter {
+    color: $w;
+}
+
+.center-text {
+    width: 100%;
+    text-align: center;
+}
+
+.special-score {
+    color: red;    
+}
+
+.leaderboard-score-container {
+    overflow-y: auto;
+    max-height: 290px;
+}
